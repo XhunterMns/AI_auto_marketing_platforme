@@ -1,8 +1,16 @@
 const axios = require("axios");
 const config = require("../config/config");
 
-const base = (config.OPENCLAW_GATEWAY_URL || "http://127.0.0.1:18789").replace(/\/$/, "");
-const URL = `${base}/v1/chat/completions`;
+const CHAT_COMPLETIONS_PATH = "/v1/chat/completions";
+
+function resolveOpenClawUrl(value) {
+  const raw = (value || "http://127.0.0.1:18789").replace(/\/+$/, "");
+  return raw.endsWith(CHAT_COMPLETIONS_PATH)
+    ? raw
+    : `${raw}${CHAT_COMPLETIONS_PATH}`;
+}
+
+const URL = resolveOpenClawUrl(config.OPENCLAW_GATEWAY_URL);
 const TOKEN = config.OPENCLAW_GATEWAY_TOKEN || "";
 const MODEL = config.OPENCLAW_MODEL || "openclaw";
 
@@ -64,4 +72,4 @@ async function callOpenClaw(prompt) {
   }
 }
 
-module.exports = { callOpenClaw };
+module.exports = { callOpenClaw, resolveOpenClawUrl };

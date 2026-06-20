@@ -1,0 +1,64 @@
+services:
+
+  frontend:
+    build:
+      context: ./ai-marketing-frontend
+      dockerfile: Dockerfile
+    container_name: ai_marketing_frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai_marketing_backend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - REDIS_HOST=redis
+      - DATABASE_URL=mongodb://mongo:27017/ai_marketing
+      - OPENCLAW_GATEWAY_URL=http://host.docker.internal:18789
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - mongo
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: ai_marketing_worker
+    restart: always
+    environment:
+      - REDIS_HOST=redis
+    env_file:
+      - .env
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    container_name: ai_marketing_redis
+    restart: always
+    volumes:
+      - redis_data:/data
+
+  mongo:
+    image: mongo:7
+    container_name: ai_marketing_mongo
+    restart: always
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  redis_data:
+  mongo_data:

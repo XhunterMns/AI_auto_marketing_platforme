@@ -2,14 +2,13 @@ require("dotenv").config();
 
 const { Worker } = require("bullmq");
 const IORedis = require("ioredis");
-const { sendToTelegram } = require("/home/chahine/ai-marketing-backend/src/utils/posting.utils.js");
+const { sendToTelegram } = require("./src/utils/posting.utils.js")
 
 const connection = new IORedis({
-  host: "127.0.0.1",
+  host: process.env.REDIS_HOST || "redis",
   port: 6379,
   maxRetriesPerRequest: null,
 });
-
 console.log("🟢 WORKER FILE LOADED");
 console.log("TOKEN:", process.env.TELEGRAM_BOT_TOKEN ? "OK" : "MISSING");
 
